@@ -1,0 +1,42 @@
+# Maintainer: Raimo Geisel <raimo@geisel-web.de>
+pkgname=arctis-mixer
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="A zero-configuration native Rust utility for SteelSeries ChatMix dials on PipeWire"
+arch=('x86_64')
+url="https://github.com/yourusername/arctis-mixer"
+license=('GPL3')
+depends=('pipewire' 'libusb' 'hidapi')
+makedepends=('cargo')
+source=("git+https://github.com/yourusername/arctis-mixer.git"
+        "arctis-mixer.service"
+        "99-arctis-mixer.rules"
+        "99-arctis-mixer.preset")
+sha256sums=('SKIP'
+            'GENERATE_ME_OR_USE_SKIP'
+            'GENERATE_ME_OR_USE_SKIP'
+            'GENERATE_ME_OR_USE_SKIP')
+
+prepare() {
+  cd "$srcdir/$pkgname"
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+  cd "$srcdir/$pkgname"
+  CARGO_TARGET_DIR=target cargo build --release --frozen
+}
+
+package() {
+  # 1. Install the compiled Rust binary
+  install -Dm755 "$srcdir/$pkgname/target/release/arctis-mixer" "$pkgdir/usr/bin/arctis-mixer"
+
+  # 2. Install the systemd user service file
+  install -Dm644 "$srcdir/arctis-mixer.service" "$pkgdir/usr/lib/systemd/user/arctis-mixer.service"
+
+  # 3. Install the systemd preset to auto-enable it
+  install -Dm644 "$srcdir/99-arctis-mixer.preset" "$pkgdir/usr/lib/systemd/user-preset/99-arctis-mixer.preset"
+
+  # 4. Install udev rules for the USB HID controller permissions
+  install -Dm644 "$srcdir/99-arctis-mixer.rules" "$pkgdir/usr/lib/udev/rules.d/99-arctis-mixer.rules"
+}

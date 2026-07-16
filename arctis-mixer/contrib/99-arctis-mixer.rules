@@ -1,0 +1,3 @@
+# SteelSeries Vendor ID (1038). Grant read/write access to the plugdev/users group.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1038", MODE="0666"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1038", MODE="0666"
