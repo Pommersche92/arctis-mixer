@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arctis-mixer — Zero-Config SteelSeries ChatMix Daemon for Linux</title>
+    <link rel="stylesheet" href="site.css">
+</head>
+<body>
+    <div class="container">
+
+        <!-- ════════════════ HEADER ════════════════ -->
+        <header>
+            <h1><span>arctis</span>-mixer</h1>
+            <p>
+                A zero-configuration, native Rust daemon that bridges SteelSeries
+                ChatMix physical dials to PipeWire virtual audio sinks on Linux.
+            </p>
+            <div class="badges">
+                <span class="badge rust">Rust</span>
+                <span class="badge aur">AUR</span>
+                <span class="badge gpl">GPL-3.0</span>
+                <span class="badge">PipeWire</span>
+                <span class="badge">systemd</span>
+            </div>
+        </header>
+
+        <!-- ════════════════ FEATURES ════════════════ -->
+        <section>
+            <h2><span class="icon">⚡</span> Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="emoji">🔌</span>
+                    <h4>Zero-Configuration</h4>
+                    <p>Installs cleanly via the AUR, automatically sets up systemd user services, and configures USB permissions without manual intervention.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">🎧</span>
+                    <h4>Native PipeWire Integration</h4>
+                    <p>Programs virtual audio sinks (<code>Arctis_Game</code> and <code>Arctis_Chat</code>) through programmatic APIs—no shell scripts or fragile wrappers.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">🧩</span>
+                    <h4>Modular Hardware Drivers</h4>
+                    <p>Extensible, trait-based driver architecture with native support for SteelSeries Arctis Nova 7 (including WoW Edition).</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">🔄</span>
+                    <h4>Adaptive Port Mapping</h4>
+                    <p>Automatically detects and switches between standard Stereo layouts and Pro-Audio profiles.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">💪</span>
+                    <h4>Robust Keep-Alive Loop</h4>
+                    <p>Gracefully handles USB disconnects, sleep states, and reboots—automatically reconnecting the physical dial when detected.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ ARCHITECTURE ════════════════ -->
+        <section>
+            <h2><span class="icon">🏗️</span> Architecture</h2>
+            <p>The utility divides responsibilities across three clean components:</p>
+            <div class="arch-grid">
+                <div class="arch-card">
+                    <h4>drivers/</h4>
+                    <p>Hardware Abstraction — Listens to USB interrupt packets over <code>hidapi</code> and translates raw dials into a unified <code>MixerEvent::ChatMixBalance(0.0–1.0)</code>.</p>
+                </div>
+                <div class="arch-card">
+                    <h4>pipewire_mgr.rs</h4>
+                    <p>Audio Routing — Instantiates virtual null-sinks on PipeWire and binds their channels directly to the physical headset's hardware channels.</p>
+                </div>
+                <div class="arch-card">
+                    <h4>main.rs</h4>
+                    <p>The Orchestrator — Runs the background monitoring loops and converts dial positions into mapped volume adjustments.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════ INSTALLATION ════════════════ -->
+        <section>
+            <h2><span class="icon">📦</span> Installation</h2>
+
+            <h3>Arch Linux (AUR)</h3>
+            <p>If you are using Arch Linux or an Arch-based distribution, install directly from the AUR:</p>
+            <pre><code>yay -S arctis-mixer</code></pre>
+            <p>Once installed, the package helper automatically compiles the binary, places user presets, installs USB <code>udev</code> permission rules, and enables the systemd user service. The background daemon will spin up automatically on your next login!</p>
+
+            <h3>Manual Installation (From Source)</h3>
+            <ol style="padding-left:1.4rem; color:var(--text-dim);">
+                <li style="margin-bottom:0.6rem;">
+                    <strong>Clone the Repository:</strong>
+                    <pre><code>git clone https://github.com/yourusername/arctis-mixer.git
+cd arctis-mixer</code></pre>
+                </li>
+                <li style="margin-bottom:0.6rem;">
+                    <strong>Build the Release Binary:</strong>
+                    <pre><code>cargo build --release</code></pre>
+                </li>
+                <li style="margin-bottom:0.6rem;">
+                    <strong>Install the Systemd User Service & Udev Rules:</strong>
+                    <pre><code># Install the compiled binary
+sudo cp target/release/arctis-mixer /usr/bin/
+
+# Install udev rules so you can access the USB HID interface without root
+sudo cp contrib/99-arctis-mixer.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+
+# Install the systemd user service
+mkdir -p ~/.config/systemd/user/
+cp contrib/arctis-mixer.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now arctis-mixer.service</code></pre>
+                </li>
+            </ol>
+        </section>
+
+        <!-- ════════════════ USAGE ════════════════ -->
+        <section>
+            <h2><span class="icon">🎮</span> Configuration & Usage</h2>
+            <p>Once installed and running, you do not need to interact with the command line.</p>
+            <ol class="steps">
+                <li>Open your system sound settings (e.g., Pavucontrol, Gnome Sound, or KDE Audio Settings).</li>
+                <li>Set your system's default audio output device to <strong>Arctis Game</strong> (<code>Arctis_Game</code>).</li>
+                <li>Configure your communication clients (Discord, TeamSpeak, Matrix, Steam Chat) to output their voice audio specifically to the <strong>Arctis Chat</strong> (<code>Arctis_Chat</code>) sink.</li>
+                <li>Rotate your headset's physical ChatMix dial. You will immediately hear the relative volumes of your game and voice communication streams shift in real time!</li>
+            </ol>
+        </section>
+
+        <!-- ════════════════ DEVELOPMENT ════════════════ -->
+        <section>
+            <h2><span class="icon">🔧</span> Development & Releases</h2>
+            <p>To package, publish, or release updates, a unified release orchestrator is provided:</p>
+            <pre><code>./release.sh</code></pre>
+            <p>Running <code>./release.sh</code> will:</p>
+            <ul>
+                <li>Run pre-flight checks (lints, formatting, unit tests) and build the optimized production binary.</li>
+                <li>Interactively publish the package workspace to <a href="https://crates.io/" style="color:var(--accent);">crates.io</a>.</li>
+                <li>Detect your sibling AUR repository, automatically sync version numbers from <code>Cargo.toml</code>, recalculate SHA256 file hashes, generate the <code>.SRCINFO</code> manifest, and push updates upstream to the AUR servers.</li>
+            </ul>
+        </section>
+
+        <!-- ════════════════ PACKAGE ════════════════ -->
+        <section>
+            <h2><span class="icon">📋</span> Package Metadata</h2>
+            <table class="meta-table">
+                <tr>
+                    <td>Name</td>
+                    <td><code>arctis-mixer</code></td>
+                </tr>
+                <tr>
+                    <td>Version</td>
+                    <td><code>0.1.0</code></td>
+                </tr>
+                <tr>
+                    <td>Edition</td>
+                    <td>2021</td>
+                </tr>
+                <tr>
+                    <td>License</td>
+                    <td>GPL-3.0-only</td>
+                </tr>
+                <tr>
+                    <td>Authors</td>
+                    <td>Pommersche92</td>
+                </tr>
+                <tr>
+                    <td>Repository</td>
+                    <td><a href="https://github.com/Pommersche92/arctis-mixer">github.com/Pommersche92/arctis-mixer</a></td>
+                </tr>
+                <tr>
+                    <td>Keywords</td>
+                    <td>steelseries, arctis, chatmix, pipewire, audio</td>
+                </tr>
+                <tr>
+                    <td>Categories</td>
+                    <td>audio, hardware-support, command-line-utilities</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- ════════════════ LICENSE ════════════════ -->
+        <section>
+            <h2><span class="icon">📄</span> License</h2>
+            <p>
+                This project is licensed under the <strong>GNU General Public License v3.0</strong> (GPL-3.0).
+                See the <a href="https://github.com/Pommersche92/arctis-mixer/blob/main/LICENSE">LICENSE</a> file for the full license text.
+            </p>
+        </section>
+
+        <!-- ════════════════ FOOTER ════════════════ -->
+        <footer>
+            <p>
+                <a href="https://github.com/Pommersche92/arctis-mixer">GitHub</a>
+                &nbsp;·&nbsp; Built with Rust & ❤️ &nbsp;·&nbsp; <span id="year"></span>
+            </p>
+        </footer>
+
+    </div>
+
+    <script src="site.js"></script>
+</body>
+</html>
