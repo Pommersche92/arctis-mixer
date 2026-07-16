@@ -33,11 +33,11 @@ impl HeadsetDriver for Nova7Driver {
             return None;
         }
 
-        // The Nova 7 reports ChatMix dial bytes. 
+        // The Nova 7 reports ChatMix dial bytes.
         // We inspect packet signatures to extract the dial state.
         if packet[0] == 0x06 && packet[1] == 0x12 {
             let raw_value = packet[2] as f32; // Typically 0 to 100 or 0 to 255
-            
+
             // Map the raw value to a 0.0 -> 1.0 balance range
             // (0.0 = Pure Chat, 0.5 = Centered 50/50, 1.0 = Pure Game)
             let balance = raw_value / 255.0;

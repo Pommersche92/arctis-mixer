@@ -1,12 +1,12 @@
 mod drivers;
 mod pipewire_mgr;
 
-use drivers::{HeadsetDriver, MixerEvent, nova7::Nova7Driver};
-use pipewire_mgr::PipewireManager;
+use drivers::{nova7::Nova7Driver, HeadsetDriver, MixerEvent};
 use hidapi::{HidApi, HidDevice};
+use pipewire_mgr::PipewireManager;
 use std::sync::Arc;
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 fn find_and_open_device(api: &HidApi, driver: &dyn HeadsetDriver) -> Option<HidDevice> {
     for device_info in api.device_list() {
@@ -51,21 +51,26 @@ fn main() -> anyhow::Result<()> {
         println!("Searching for physical USB dial connection...");
         if let Some(device) = find_and_open_device(&api, &*driver) {
             println!("Connected to physical headset dial interface!");
-            
+
             let mut buf = [0u8; 64];
             loop {
                 // Read USB interrupt transfers
                 match device.read_timeout(&mut buf, 1000) {
                     Ok(bytes_read) => {
                         if bytes_read > 0 {
-                            if let Some(MixerEvent::ChatMixBalance(balance)) = driver.parse_packet(&buf[..bytes_read]) {
+                            if let Some(MixerEvent::ChatMixBalance(balance)) =
+                                driver.parse_packet(&buf[..bytes_read])
+                            {
                                 // Linear audio balance mapping
                                 // Left side of dial favors Chat, right side favors Game
                                 let game_volume = balance.min(0.5) * 2.0;
                                 let chat_volume = (1.0 - balance).min(0.5) * 2.0;
 
-                                println!("Dial Balance: {:.1}% | Game: {:.1}% | Chat: {:.1}%", 
-                                    balance * 100.0, game_volume * 100.0, chat_volume * 100.0
+                                println!(
+                                    "Dial Balance: {:.1}% | Game: {:.1}% | Chat: {:.1}%",
+                                    balance * 100.0,
+                                    game_volume * 100.0,
+                                    chat_volume * 100.0
                                 );
 
                                 if let Err(e) = pw.set_volumes(game_volume, chat_volume) {
@@ -81,7 +86,7 @@ fn main() -> anyhow::Result<()> {
                 }
             }
         }
-        
+
         thread::sleep(Duration::from_secs(3));
     }
 }
