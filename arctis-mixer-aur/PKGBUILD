@@ -4,11 +4,11 @@ pkgver=0.1.0
 pkgrel=1
 pkgdesc="A zero-configuration native Rust utility for SteelSeries ChatMix dials on PipeWire"
 arch=('x86_64')
-url="https://github.com/yourusername/arctis-mixer"
+url="https://github.com/pommersche92/arctis-mixer"
 license=('GPL3')
 depends=('pipewire' 'libusb' 'hidapi')
 makedepends=('cargo')
-source=("git+https://github.com/yourusername/arctis-mixer.git"
+source=("git+https://github.com/pommersche92/arctis-mixer.git"
         "arctis-mixer.service"
         "99-arctis-mixer.rules"
         "99-arctis-mixer.preset")
