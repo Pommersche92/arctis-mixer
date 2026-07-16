@@ -10,7 +10,7 @@ repository = "https://github.com/Pommersche92/arctis-mixer"
 homepage = "https://pommersche92.github.io/arctis-mixer/"
 readme = "../README.md"
 keywords = ["steelseries", "arctis", "chatmix", "pipewire", "audio"]
-categories = ["audio", "hardware-support", "command-line-utilities"]
+categories = ["multimedia::audio", "hardware-support", "command-line-utilities"]
 
 [dependencies]
 hidapi = "2.6"
