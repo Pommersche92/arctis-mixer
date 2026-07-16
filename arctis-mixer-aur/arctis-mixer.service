@@ -1,0 +1,13 @@
+[Unit]
+Description=SteelSeries ChatMix Universal Daemon (Rust)
+After=pipewire.service pipewire-pulse.service wireplumber.service
+Requires=pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/arctis-mixer
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target

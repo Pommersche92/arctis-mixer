@@ -1,0 +1,21 @@
+pkgbase = arctis-mixer
+	pkgdesc = A zero-configuration native Rust utility for SteelSeries ChatMix dials on PipeWire
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/pommersche92/arctis-mixer
+	arch = x86_64
+	license = GPL3
+	makedepends = cargo
+	depends = pipewire
+	depends = libusb
+	depends = hidapi
+	source = git+https://github.com/pommersche92/arctis-mixer.git
+	source = arctis-mixer.service
+	source = 99-arctis-mixer.rules
+	source = 99-arctis-mixer.preset
+	sha256sums = SKIP
+	sha256sums = 05654a8fe65e53bf02b7ee847b5e042406a249f654792a0b10f0a47d0cb2a65e
+	sha256sums = 0c769574ef982ff2bd48e17ad31d20b77e8458c061cce7db8a776a2d1372da27
+	sha256sums = de77315e6b41f32fb616deab91d5379cb63206b4726a086413e5715b633027c8
+
+pkgname = arctis-mixer
